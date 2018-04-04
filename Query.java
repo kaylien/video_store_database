@@ -25,7 +25,13 @@ public class Query {
 
     // Canned queries
 
-    private String _search_sql = "SELECT * FROM movie WHERE LOWER(name) like LOWER(?) ORDER BY id";
+    // added the LOWER to the sql query to make it case insensitive
+    private String _search_sql = "SELECT m.*, d.fname, d.lname"
+    +" FROM movie m"
+    +" INNER JOIN movie_directors md ON md.mid = m.id"
+    +" INNER JOIN directors d ON d.id = md.did"
+    +" WHERE LOWER(name) LIKE LOWER(?)"
+    +" ORDER BY m.id";
     private PreparedStatement _search_statement;
 
 
