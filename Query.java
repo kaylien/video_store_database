@@ -38,6 +38,11 @@ public class Query {
                      + "WHERE x.mid = ? and x.did = y.id";
     private PreparedStatement _director_mid_statement;
 
+    private String _actors_mid_sql = "SELECT a.id, a.fname, a.lname"
+    + " FROM casts c, actor a"
+    + " WHERE c.mid = ? AND a.id = c.pid";
+    private PreparedStatement _actors_mid_statement;
+
     /* uncomment, and edit, after your create your own customer database */
     /*
     private String _customer_login_sql = "SELECT * FROM customers WHERE login = ? and password = ?";
@@ -97,6 +102,7 @@ public class Query {
 
         _search_statement = _imdb.prepareStatement(_search_sql);
         _director_mid_statement = _imdb.prepareStatement(_director_mid_sql);
+        _actors_mid_statement = _imdb.prepareStatement(_actors_mid_sql);
 
         /* uncomment after you create your customers database */
         /*
@@ -197,6 +203,14 @@ public class Query {
             director_set.close();
             /* now you need to retrieve the actors, in the same manner */
             /* then you have to find the status: of "AVAILABLE" "YOU HAVE IT", "UNAVAILABLE" */
+            _actors_mid_statement.clearParameters();
+            _actors_mid_statement.setInt(1, mid);
+            ResultSet actor_set = _actors_mid_statement.executeQuery();
+            while (actor_set.next()) {
+                System.out.println("\t\tActress/Actor: " + actor_set.getString(3)
+                        + " " + actor_set.getString(2)); 
+            }
+            actor_set.close();
         }
         System.out.println();
     }
