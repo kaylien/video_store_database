@@ -46,12 +46,23 @@ public class Query {
                     + " WHERE c.mid = ? AND a.id = c.pid";
     private PreparedStatement _actors_mid_statement;
 
+    
+
+    //if the cid is equal to the logged in user, make YOU ARE CURRENTLY RENTING
+    //if the cid is existing and return date null, make UNAVAILABLE
+    //if there is no return date null for the movie, make AVAILABLE
 
 
     /* uncomment, and edit, after your create your own customer database */
     
     private String _customer_login_sql = "SELECT * FROM customer WHERE username = ? and password = ?";
     private PreparedStatement _customer_login_statement;
+
+    private String _customer_renting_sql = 
+    "SELECT rentedBy"
+    + " FROM rental"
+    + " WHERE forMovie = ? AND dateReturned IS NULL";
+    private PreparedStatement _customer_renting_statement;
 
     private String _begin_transaction_read_write_sql = "BEGIN TRANSACTION READ WRITE";
     private PreparedStatement _begin_transaction_read_write_statement;
@@ -61,7 +72,18 @@ public class Query {
 
     private String _rollback_transaction_sql = "ROLLBACK TRANSACTION";
     private PreparedStatement _rollback_transaction_statement;
-     
+
+    //this is assuming that we only have one copy of a movie that can be out at a time
+    //hence there can only be one result, and one cid returned
+
+
+
+    //private String _customer_renting_sql = 
+    //"SELECT *"
+    //+ " FROM rental r";
+    ////+ " WHERE m.mid = ? AND dateReturned IS NULL";
+    //private PreparedStatement _customer_renting_statement;
+
 
     public Query() {
     }
@@ -119,6 +141,7 @@ public class Query {
 
         /* add here more prepare statements for all the other queries you need */
         /* . . . . . . */
+        _customer_renting_statement = _customer_db.prepareStatement(_customer_renting_sql);
     }
 
 
@@ -216,6 +239,30 @@ public class Query {
                         + " " + actor_set.getString(2)); 
             }
             actor_set.close();
+            // renting
+            _customer_renting_statement.clearParameters();
+            _customer_renting_statement.setInt(1, mid);
+
+            ResultSet customer_renting_set = _customer_renting_statement.executeQuery();
+            int renter = 0;
+            while (customer_renting_set.next()) {
+                renter = customer_renting_set.getInt(1);
+
+                if (renter == cid) {
+                    System.out.println("YOU'RE RENTING THIS"); 
+                }
+
+                else {
+                    System.out.println("UNAVAILABLE");
+                }
+            }
+
+            if (renter == 0) {
+                System.out.println("AVAILABLE");
+            }
+
+
+            customer_renting_set.close();
 
 
         }
