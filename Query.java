@@ -61,6 +61,16 @@ public class Query {
     //hence there can only be one result, and one cid returned
 
     /* uncomment, and edit, after your create your own customer database */
+
+    private String _customer_renting_how_many_sql = 
+    "SELECT COUNT(*) AS count, p.maxRentals"
+    + " FROM Rental r, Customer c, Plan p"
+    + " WHERE r.rentedBy = c.id AND p.pName = c.pname"
+    + " AND rentedBy = ? AND dateReturned IS NULL"
+    + " GROUP BY p.maxRentals";
+    private PreparedStatement _customer_renting_how_many_statement;
+
+
     
     private String _customer_login_sql = "SELECT * FROM customer WHERE username = ? and password = ?";
     private PreparedStatement _customer_login_statement;
@@ -134,6 +144,7 @@ public class Query {
         /* add here more prepare statements for all the other queries you need */
         /* . . . . . . */
         _customer_renting_statement = _customer_db.prepareStatement(_customer_renting_sql);
+        _customer_renting_how_many_statement = _customer_db.prepareStatement(_customer_renting_how_many_sql);
     }
 
 
@@ -144,12 +155,25 @@ public class Query {
         /* how many movies can she/he still rent ? */
         /* you have to compute and return the difference between the customer's plan
            and the count of oustanding rentals */
-        return (99);
+
+            _customer_renting_how_many_statement.clearParameters();
+            _customer_renting_how_many_statement.setInt(1, cid);
+            ResultSet customer_rented_set = _customer_renting_how_many_statement.executeQuery();
+            int customerIsRenting = 0;
+            int maxRentals = 0;
+            while (customer_rented_set.next()) {
+                customerIsRenting= customer_rented_set.getInt(1);
+                maxRentals = customer_rented_set.getInt(2);
+        }
+
+            return (maxRentals - customerIsRenting);
+
     }
 
     public String helper_compute_customer_name(int cid) throws Exception {
         /* you find  the first + last name of the current customer */
         return ("JoeFirstName" + " " + "JoeLastName");
+
 
     }
 
@@ -261,6 +285,7 @@ public class Query {
     public void transaction_choose_plan(int cid, int pid) throws Exception {
         /* updates the customer's plan to pid: UPDATE customers SET plid = pid */
         /* remember to enforce consistency ! */
+
     }
 
     public void transaction_list_plans() throws Exception {
