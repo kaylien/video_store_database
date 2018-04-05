@@ -53,6 +53,9 @@ public class Query {
                     + " WHERE forMovie = ? AND dateReturned IS NULL";
     private PreparedStatement _customer_renting_statement;
 
+    private String _rent_movie_sql = "INSERT INTO Rental(dateRented, dateReturned, rentedBy, forMovie) VALUES (current_date, NULL, ?, ?)";
+    private PreparedStatement _rent_movie_statement;
+
     //if the cid is equal to the logged in user, make YOU ARE CURRENTLY RENTING
     //if the cid is existing and return date null, make UNAVAILABLE
     //if there is no return date null for the movie, make AVAILABLE
@@ -145,6 +148,7 @@ public class Query {
         /* . . . . . . */
         _customer_renting_statement = _customer_db.prepareStatement(_customer_renting_sql);
         _customer_renting_how_many_statement = _customer_db.prepareStatement(_customer_renting_how_many_sql);
+        _rent_movie_statement = _customer_db.prepareStatement(_rent_movie_sql);
     }
 
 
@@ -201,7 +205,7 @@ public class Query {
 
             customer_renting_set.close();
             return cid;
-            
+
     }
 
     /**********************************************************/
@@ -226,6 +230,7 @@ public class Query {
 
     public void transaction_personal_data(int cid) throws Exception {
         /* println the customer's personal data: name, and plan number */
+
     }
 
 
@@ -290,6 +295,8 @@ public class Query {
         /* updates the customer's plan to pid: UPDATE customers SET plid = pid */
         /* remember to enforce consistency ! */
 
+
+
     }
 
     public void transaction_list_plans() throws Exception {
@@ -303,6 +310,15 @@ public class Query {
     public void transaction_rent(int cid, int mid) throws Exception {
         /* rend the movie mid to the customer cid */
         /* remember to enforce consistency ! */
+
+        _rent_movie_statement.clearParameters();
+        _rent_movie_statement.setInt(1, cid);
+        _rent_movie_statement.setInt(2, mid);
+        _rent_movie_statement.executeUpdate();
+
+        System.out.println("Successfully rented");
+
+
     }
 
     public void transaction_return(int cid, int mid) throws Exception {
