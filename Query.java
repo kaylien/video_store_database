@@ -189,7 +189,19 @@ public class Query {
 
     private int helper_who_has_this_movie(int mid) throws Exception {
         /* find the customer id (cid) of whoever currently rents the movie mid; return -1 if none */
-        return (77);
+        
+            _customer_renting_statement.clearParameters();
+            _customer_renting_statement.setInt(1, mid);
+
+            ResultSet customer_renting_set = _customer_renting_statement.executeQuery();
+            int cid = -1;
+            while (customer_renting_set.next()) {
+                cid = customer_renting_set.getInt(1);
+            }
+
+            customer_renting_set.close();
+            return cid;
+            
     }
 
     /**********************************************************/
@@ -256,26 +268,18 @@ public class Query {
             }
             actor_set.close();
             // renting
-            _customer_renting_statement.clearParameters();
-            _customer_renting_statement.setInt(1, mid);
+            int renter = helper_who_has_this_movie(mid);
 
-            ResultSet customer_renting_set = _customer_renting_statement.executeQuery();
-            int renter = 0;
-            while (customer_renting_set.next()) {
-                renter = customer_renting_set.getInt(1);
-                if (renter == cid) {
-                    System.out.println("YOU'RE RENTING THIS"); 
-                }
-                else {
-                    System.out.println("UNAVAILABLE");
-                }
+            if (renter == cid) {
+                System.out.println("YOU'RE RENTING THIS"); 
+            }
+            else if (renter != cid) {
+                System.out.println("UNAVAILABLE");
             }
 
-            if (renter == 0) {
+            else if (renter == -1) {
                 System.out.println("AVAILABLE");
             }
-
-            customer_renting_set.close();
 
 
         }
